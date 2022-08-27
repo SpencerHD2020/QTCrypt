@@ -33,5 +33,6 @@ private:
     QList<QString> spawnFileDialog();
     void updateErrorString(QString err);
     Encryption *encryptor {nullptr};
+    void processFile(int functor);
 };
 #endif // MAINWINDOW_H

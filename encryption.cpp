@@ -1,10 +1,9 @@
 #include "encryption.h"
 
-Encryption::Encryption(int type, QString fileName)
-{
-    purpose = type;
-    absolutePath = fileName;
-}
+// Constructors
+Encryption::Encryption(int type, QString fileName) : purpose{type}, absolutePath{fileName} {};
+Encryption::Encryption(int type, QString fileName, QString outFile) : purpose{type}, absolutePath{fileName}, outFileName{outFile} {};
+Encryption::Encryption(int type, QString fileName, QString outFile, QString salt, QString pass) : purpose{type}, absolutePath{fileName}, outFileName{outFile}, ckeyText{salt.toStdString()}, ivecText{pass.toStdString()} {};
 
 bool Encryption::fileExists() {
     QFileInfo checkFile(absolutePath);
@@ -64,7 +63,8 @@ int Encryption::getFileSize(QString path) {
 void Encryption::encrypt() {
     std::string inputFile {absolutePath.toStdString()};
     std::string dirPath {getDirName(inputFile)};
-    std::string outFilePath {(dirPath + "output_file.txt")};
+    // TODO: Need to consider if user passes a path versus filename here
+    std::string outFilePath {(dirPath + outFileName.toStdString())};
     QFile encryptedFile(QString::fromStdString(outFilePath));
     CryptFileDevice cryptDevice(&encryptedFile, QByteArray::fromStdString(ckeyText), QByteArray::fromStdString(ivecText));
     // Read source file and write to encrypted file
@@ -74,60 +74,36 @@ void Encryption::encrypt() {
     }
     else {
         QTextStream in(&sourceFile);
-        //encryptedFile.open(QIODevice::WriteOnly);
         cryptDevice.open(QIODevice::WriteOnly);
-        //QTextStream outStream(&encryptedFile);
         while (!in.atEnd()) {
             QString line {in.readLine()};
             cryptDevice.write(QByteArray::fromStdString(line.toStdString()));
         }
         // Close Both files
-       // encryptedFile.close();
         cryptDevice.close();
         sourceFile.close();
         emit encryptionComplete();
     }
-    /*
-    FILE *ifp = fopen(inputFile.c_str(), "rb");
-    std::string dirPath {getDirName(inputFile)};
-    std::string outFilePath {(dirPath + "output_file.txt")};
-    FILE *ofp = fopen(outFilePath.c_str(), "wb");
-
-    int bytesRead, bytesWritten;
-    int blockSize {getFileSize(absolutePath)};
-    if (blockSize > 0) {
-        // Continue Encryption
-        unsigned char indata[blockSize];
-        unsigned char outdata[blockSize];
-        // Define Keys
-        unsigned char *ckey = new unsigned char[ckeyText.length()+1];
-        strcpy((char *)ckey, ckeyText.c_str());
-        unsigned char *ivec = new unsigned char[ivecText.length()+1];
-        strcpy((char *)ivec, ivecText.c_str());
-
-        AES_KEY key;
-        AES_set_encrypt_key(ckey, 128, &key);
-
-        int num {0};
-
-        while (true) {
-            bytesRead = fread(indata, 1, blockSize, ifp);
-            AES_cfb128_encrypt(indata, outdata, bytesRead, &key, ivec, &num, AES_ENCRYPT);
-            bytesWritten = fwrite(outdata, 1, bytesRead, ofp);
-            if (bytesRead < blockSize) {
-                break;
-            }
-        }
-    }
-    else {
-        // Emit non accessible signal
-        emit fileNotAccessible();
-    }
-    */
 }
 
 void Encryption::decrypt() {
-
+    std::string encryptedFilePath {absolutePath.toStdString()};
+    std::string dirPath {getDirName(encryptedFilePath)};
+    // TODO: Need to consider if user passes a path versus filename here
+    std::string outFilePath {(dirPath + outFileName.toStdString())};
+    QFile decryptedFile(QString::fromStdString(outFilePath));
+    QFile encryptedFile(absolutePath);
+    CryptFileDevice cryptDevice(&encryptedFile, QByteArray::fromStdString(ckeyText), QByteArray::fromStdString(ivecText));
+    // Open Files
+    cryptDevice.open(QIODevice::ReadOnly);
+    decryptedFile.open(QIODevice::WriteOnly);
+    // Decrypt Data
+    QByteArray decryptedData {cryptDevice.readAll()};
+    // Write Decrypted Data to output File
+    decryptedFile.write(decryptedData);
+    // Close Both Files
+    cryptDevice.close();
+    decryptedFile.close();
 }
 
 void Encryption::begin() {

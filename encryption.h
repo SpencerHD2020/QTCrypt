@@ -14,7 +14,12 @@ class Encryption : public QObject
 {
     Q_OBJECT
 public:
+    // Minimum Constructor
     Encryption(int type, QString fileName);
+    // Min + OutFileName
+    Encryption(int type, QString fileName, QString outFile);
+    // MAX Constructor
+    Encryption(int type, QString fileName, QString outFile, QString salt, QString pass);
     enum types {
         ENCRYPT,
         DECRYPT
@@ -32,6 +37,7 @@ private:
     int getFileSize(QString path);
     std::string ckeyText {"jxtlwamtgalyxeth"};
     std::string ivecText {"apemctyukkdlawyt"};
+    QString outFileName {"output_file.txt"};
 signals:
     void invalidFileName();
     void fileNonExistantOrDir();
