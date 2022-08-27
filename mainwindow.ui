@@ -12,7 +12,6 @@
   </property>
   <property name="font">
    <font>
-    <family>American Typewriter</family>
     <pointsize>14</pointsize>
     <bold>true</bold>
    </font>
@@ -23,10 +22,9 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QLabel" name="label">
+     <widget class="QLabel" name="mainLabel">
       <property name="font">
        <font>
-        <family>Marker Felt</family>
         <pointsize>48</pointsize>
         <bold>true</bold>
        </font>

@@ -3,6 +3,12 @@
 #include <QString>
 #include <QObject>
 #include <QFileInfo>
+#include <openssl/aes.h>
+#include <QDebug>
+#include <QFile>
+#include "cryptfiledevice.h"
+#include <QTextStream>
+#include <QStringList>
 
 class Encryption : public QObject
 {
@@ -21,9 +27,16 @@ private:
     void decrypt();
     bool fileExists();
     bool userInfoValid();
+    bool DEBUG {true};
+    std::string getDirName(std::string absPath);
+    int getFileSize(QString path);
+    std::string ckeyText {"jxtlwamtgalyxeth"};
+    std::string ivecText {"apemctyukkdlawyt"};
 signals:
     void invalidFileName();
     void fileNonExistantOrDir();
+    void fileNotAccessible();
+    void encryptionComplete();
 };
 
 #endif // ENCRYPTION_H

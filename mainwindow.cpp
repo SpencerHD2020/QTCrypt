@@ -25,6 +25,34 @@ QList<QString> MainWindow::spawnFileDialog() {
     }
 }
 
+void MainWindow::updateErrorString(QString err) {
+    this->ui->mainLabel->setText(("QTCrypt \n" + err));
+    // TODO: Change Label Color
+}
+
+
+void MainWindow::connectCurrentEncryptor() {
+    /*
+    void invalidFileName();
+    void fileNonExistantOrDir();
+    void fileNotAccessible();
+    void encryptionComplete();
+    */
+    connect(encryptor, &Encryption::invalidFileName, this, [=]() {
+       updateErrorString("Invalid File Name!");
+    });
+    connect(encryptor, &Encryption::fileNonExistantOrDir, this, [=](){
+       updateErrorString("File does not exist!");
+    });
+    connect(encryptor, &Encryption::fileNotAccessible, this, [=](){
+       updateErrorString("File not accessible!");
+    });
+    connect(encryptor, &Encryption::encryptionComplete, this, [=](){
+       updateErrorString("Encryption Complete!");
+    });
+}
+
+
 // Consider breaking Designer connects and making this one function
 void MainWindow::on_encryptButton_clicked()
 {
@@ -37,6 +65,10 @@ void MainWindow::on_encryptButton_clicked()
         for (int i {0}; i < fileNames.size(); ++i) {
             QString file {fileNames[i]};
             // qDebug() << file; RETURNS ABSOLUTE PATH
+            Encryption *en = new Encryption(ENCRYPT, file);
+            encryptor = en;
+            connectCurrentEncryptor();
+            en->begin();
         }
     }
 }

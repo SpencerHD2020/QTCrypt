@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QList>
 #include <QDebug>
+#include "encryption.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,14 +18,20 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    enum types {
+        ENCRYPT,
+        DECRYPT
+    };
 
 private slots:
     void on_encryptButton_clicked();
-
     void on_decryptButton_clicked();
+    void connectCurrentEncryptor();
 
 private:
     Ui::MainWindow *ui;
     QList<QString> spawnFileDialog();
+    void updateErrorString(QString err);
+    Encryption *encryptor {nullptr};
 };
 #endif // MAINWINDOW_H
