@@ -2,8 +2,33 @@
 
 // Constructors
 Encryption::Encryption(int type, QString fileName) : purpose{type}, absolutePath{fileName} {};
-Encryption::Encryption(int type, QString fileName, QString outFile) : purpose{type}, absolutePath{fileName}, outFileName{outFile} {};
-Encryption::Encryption(int type, QString fileName, QString outFile, QString salt, QString pass) : purpose{type}, absolutePath{fileName}, outFileName{outFile}, ckeyText{salt.toStdString()}, ivecText{pass.toStdString()} {};
+Encryption::Encryption(int type, QString fileName, QString outFile) : purpose{type}, absolutePath{fileName} {
+    setOutFileFromInput(outFile);
+};
+
+Encryption::Encryption(int type, QString fileName, QString outFile, QString salt, QString pass) : purpose{type}, absolutePath{fileName} {
+    setOutFileFromInput(outFile);
+    // Validate salt and pass and convert to standard strings
+    if (salt.length() > 0) {
+        ckeyText = salt.toStdString();
+    }
+    if (pass.length() > 0) {
+        ivecText = pass.toStdString();
+    }
+};
+
+void Encryption::setOutFileFromInput(QString input) {
+    // Validate FileName
+    if (input.contains(".")) {
+        // Ensure extension is txt
+        outFileName = (input.split(".")[0] + ".txt");
+    }
+    else if (input.length() > 0) {
+        // Append .txt on end of fileName
+        outFileName = (input + ".txt");
+    }
+}
+
 
 bool Encryption::fileExists() {
     QFileInfo checkFile(absolutePath);

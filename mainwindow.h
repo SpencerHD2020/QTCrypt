@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QList>
 #include <QDebug>
+#include <QPalette>
 #include "encryption.h"
 
 QT_BEGIN_NAMESPACE

@@ -38,6 +38,7 @@ private:
     std::string ckeyText {"jxtlwamtgalyxeth"};
     std::string ivecText {"apemctyukkdlawyt"};
     QString outFileName {"output_file.txt"};
+    void setOutFileFromInput(QString input);
 signals:
     void invalidFileName();
     void fileNonExistantOrDir();

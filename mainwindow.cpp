@@ -27,17 +27,19 @@ QList<QString> MainWindow::spawnFileDialog() {
 
 void MainWindow::updateErrorString(QString err) {
     this->ui->mainLabel->setText(("QTCrypt \n" + err));
-    // TODO: Change Label Color
+    // Change Label Color
+    QPalette mainLabelPallete;
+    if (!err.contains("Complete")) {
+        mainLabelPallete.setColor(QPalette::Window, Qt::red);
+    }
+    else {
+        mainLabelPallete.setColor(QPalette::Window, Qt::green);
+    }
+    this->ui->mainLabel->setPalette(mainLabelPallete);
 }
 
 
 void MainWindow::connectCurrentEncryptor() {
-    /*
-    void invalidFileName();
-    void fileNonExistantOrDir();
-    void fileNotAccessible();
-    void encryptionComplete();
-    */
     connect(encryptor, &Encryption::invalidFileName, this, [=]() {
        updateErrorString("Invalid File Name!");
     });
@@ -54,10 +56,10 @@ void MainWindow::connectCurrentEncryptor() {
 
 void MainWindow::processFile(int functor) {
     // Collect Password and Salt
-    QString password {this->ui->passEdit->toPlainText()};
-    QString salt {this->ui->saltEdit->toPlainText()};
+    QString password {this->ui->passEdit->text()};
+    QString salt {this->ui->saltEdit->text()};
     // Once passed to the Encrypt class we will check for null entry
-    QString outputFileName {this->ui->outFileName->toPlainText()};
+    QString outputFileName {this->ui->outFileName->text()};
     // Spawn File Dialog - Turn this into a function
     QList<QString> fileNames {spawnFileDialog()};
     if (fileNames[0] != "null") {
@@ -66,7 +68,7 @@ void MainWindow::processFile(int functor) {
             QString file {fileNames[i]};
             // qDebug() << file; RETURNS ABSOLUTE PATH
             // Currently, we need to wait until the function completes before proceeding
-            Encryption *en = new Encryption(functor, file, outputFileName);
+            Encryption *en = new Encryption(functor, file, outputFileName, salt, password);
             encryptor = en;
             connectCurrentEncryptor();
             en->begin();
@@ -76,26 +78,8 @@ void MainWindow::processFile(int functor) {
     }
 }
 
-// Consider breaking Designer connects and making this one function
 void MainWindow::on_encryptButton_clicked()
 {
-    /*
-    // Once passed to the Encrypt class we will check for null entry
-    QString outputFileName {this->ui->outFileName->toPlainText()};
-    // Spawn File Dialog - Turn this into a function
-    QList<QString> fileNames {spawnFileDialog()};
-    if (fileNames[0] != "null") {
-        // Proceed with encryption
-        for (int i {0}; i < fileNames.size(); ++i) {
-            QString file {fileNames[i]};
-            // qDebug() << file; RETURNS ABSOLUTE PATH
-            Encryption *en = new Encryption(ENCRYPT, file);
-            encryptor = en;
-            connectCurrentEncryptor();
-            en->begin();
-        }
-    }
-    */
     processFile(ENCRYPT);
 }
 
